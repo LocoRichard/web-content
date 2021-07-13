@@ -81,26 +81,26 @@ jobs:
           sudo npm i node-html-parser
           node ./pymilvus-fs.js
           cd ../../../../${{ github.event.repository.name }}/APIReference/pymilvus-orm
-          echo "Upcomming tag name: ${{ github.event.inputs.branchName }}"
+          echo "Upcomming branch name: ${{ github.event.inputs.branchName }}"
+          echo "Upcomming dir name: ${{ steps.get_latest_version.outputs.dirName }}"
           echo "=>List all doc versions"
           ls -l
           sudo chmod -R 777 .
-          if [ -d "./v${{ github.event.inputs.branchName }}" ]
+          if [ -d "./${{ steps.get_latest_version.outputs.dirName }}" ]
           then
-            echo "===tag name exists, remove all under this dir==="
-            sudo rm -fr "./v${{ github.event.inputs.branchName }}"
+            echo "===dir name exists, remove all under this dir==="
+            sudo rm -fr "./${{ steps.get_latest_version.outputs.dirName }}"
             git add .
             git status
-            git commit -m "clean files under ${{ github.event.inputs.repoName }} ${{ github.event.inputs.branchName }}"
-            sudo mkdir "./v${{ github.event.inputs.branchName }}"
+            git commit -m "clean files under ${{ github.event.inputs.repoName }} ${{ steps.get_latest_version.outputs.dirName }}"
+            sudo mkdir "./${{ steps.get_latest_version.outputs.dirName }}"
+            sudo rm -fr ../../../pymilvus-orm/docs/build/html/api/api.html
+            sudo cp -r ../../../pymilvus-orm/docs/build/html/output/* "./${{ steps.get_latest_version.outputs.dirName }}"
+            sudo chmod -R 777 .
+            git add .
+            git commit -m "Update pymilvus-orm ${{ steps.get_latest_version.outputs.dirName }}"
+            git push -f origin master
+            echo "=>Completed: Update pymilvus-orm ${{ steps.get_latest_version.outputs.dirName }} doc repo."
           else
-            echo "===miss tag name, create this dir==="
-            sudo mkdir "./v${{ github.event.inputs.branchName }}"
+            echo "===miss dir name, ignore==="
           fi
-          sudo rm -fr ../../../pymilvus-orm/docs/build/html/api/api.html
-          sudo cp -r ../../../pymilvus-orm/docs/build/html/output/* "./v${{ github.event.inputs.branchName }}"
-          sudo chmod -R 777 .
-          git add .
-          git commit -m "Update pymilvus-orm v${{ github.event.inputs.branchName }}"
-          git push -f origin master
-          echo "=>Completed: Update pymilvus-orm v${{ github.event.inputs.branchName }} doc repo."
