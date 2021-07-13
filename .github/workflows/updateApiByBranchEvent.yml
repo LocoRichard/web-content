@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       branchName:
-        description: 'Branch name'
+        description: "Branch name"
         required: true
       repoName:
-        description: 'Repo name'
+        description: "Repo name"
         required: true
 
 jobs:
@@ -46,9 +46,16 @@ jobs:
           fi
           cd ../../
           echo "=>Completed: Git clone and update API reference doc directory."
+      - id: get_latest_version
+        name: Get directory name with latest version
+        run: |
+          cd ${{ github.event.repository.name }}/APIReference/${{ github.event.inputs.repoName }}
+          export latestDir=`ls | grep -i "${{ github.event.inputs.branchName }}" | sort -V | tail -n 1`
+          echo "::set-output name=dirName::$latestDir"
+          echo "=>Completed: Latest version directory is $latestDir"
       - id: update_repo_pymilvus_orm
         name: Update pymilvus-orm doc repo
-        if: ${{ github.event.inputs.repoName == 'pymilvus-orm' }}
+        if: ${{ (steps.get_latest_version.outputs.dirName) && (github.event.inputs.repoName == 'pymilvus-orm') }}
         run: |
           sudo chmod -R 777 ${{ github.event.inputs.repoName }}
           cd ${{ github.event.inputs.repoName }}
